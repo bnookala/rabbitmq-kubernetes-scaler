@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  generateName: consumermq-
+  labels:
+    type: consumermq
+spec:
+  containers:
+  - name: consumer-container
+    image: your-private-registry.io/rabbitmq-k8s-consumer
+    env:
+      - name: RABBIT_URL
+        value: YOUR_RABBIT_SERVICE_URL
+      - name: QUEUE
+        value: "workqueue"
+      - name: RABBIT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: rabbitsecret
+            key: password
+  imagePullSecrets:
+  - name: acrsecret

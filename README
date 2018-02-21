@@ -1,0 +1,42 @@
+# rabbitmq-kubernetes-worker
+
+## what is it?
+a proof of concept application that shows how one can autoscale rabbitmq consumers on kubernetes
+
+## components
+
+### scaler
+
+scales the number of consumers available based on the queue length.
+
+### producer
+
+produces 50 strings of random length strings filled with periods and submits them to a rabbitmq queue ie:
+
+........
+.............
+.........
+......
+
+### consumer
+
+consumes the string sin the queue, timing out for one second for every '.' in the string
+
+
+### setup
+
+1. copy your `kubeconfig` file to the application directory ie `cp $KUBECONFIG .`
+2. `helm install stable/rabbitmq`, follow the instructions to reveal the user and password
+3. base64 the user, and password. fill in the appropriate field in `rabbit-secret.yaml`
+4. kubectl create -f rabbit-secret.yaml
+5. !IMPORTANT¡ create an ACR (or some other private) registry. follow the instructions here to get it configured into your cluster
+https://thorsten-hans.com/how-to-use-a-private-azure-container-registry-with-kubernetes-9b86e67b93b6
+6. build docker images for each of the components:
+    * consumer: `docker build . -t consumermq-k8s -f consumer/Dockerfile`
+    * scaler: `docker build . -t scalermq-k8s -f scaler/Dockerfile`
+7. tag the images:
+    * consumer: `docker tag consumermq-k8s my-private-registry.azurecr.io/consumermq-k8s`
+    * scaler: `docker tag scalermq-k8s my-private-registry/azurecr.io/scalermq-k8s`
+8. push the images:
+    * consumer: `docker push my-private-registry.azurecr.io/consumermq-k8s`
+    * scaler: `docker push my-private-registry/azurecr.io/scalermq-k8s`

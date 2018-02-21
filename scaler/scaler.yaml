@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  generateName: scalermq-
+  labels:
+    type: scalermq
+spec:
+  containers:
+  - name: scaler-container
+    image: your-private-registry.azurecr.io/rabbitmq-k8s-scaler
+    env:
+      - name: RABBIT_URL
+        value: YOUR_RABBIT_SERVICE_URL
+      - name: QUEUE
+        value: "workqueue"
+      - name: RABBIT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: rabbitsecret
+            key: password
+  imagePullSecrets:
+  - name: acrsecret
